@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (game.isFinal) {
         headerInfo = `<span>${game.statusDetail.toUpperCase()}</span>`;
       } else {
-        headerInfo = `<span>ÀS ${game.statusDetail}</span>`;
+        headerInfo = `<span>Agendado</span>`;
       }
 
       const homeColor = teamColors[game.homeTeam] || "#555555";
