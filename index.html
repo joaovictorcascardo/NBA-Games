@@ -1,11 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Placar de Basquete Ao Vivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
+
+    <header>
+        <h1>Jogos da Noite <span class="live-pulse-header">●</span> LIVE</h1>
+        
+        <div class="league-selector">
+            <button id="btn-nba" class="league-btn">NBA</button>
+            <button id="btn-wnba" class="league-btn">WNBA</button>
+        </div>
+
+        <p>Atualizado em: <span id="last-updated">--:--:--</span></p>
+    </header>
+
+    <main id="games-container">
+        </main>
+
+    <footer>
+        <p><strong>Aviso:</strong> Este projeto utiliza a API pública da ESPN.</p>
+    </footer>
+
+    <script src="script.js"></script>
+
 </body>
 </html>
