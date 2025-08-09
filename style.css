@@ -9,14 +9,22 @@
 }
 
 body {
+
+    backdrop-filter: blur(6px)  brightness(50%);
+    background-color: #1e1e1e;
     font-family: 'Inter', sans-serif;
-    background-color: var(--bg-color);
+    /* background-image: url(./design-de-fundo-preto.jpg); */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    /* background-color: var(--bg-color);  */
     color: var(--text-color);
     margin: 0;
     padding: 2rem;
 }
 
 header {
+    /* background-color: #121212; */
     text-align: center;
     margin-bottom: 2rem;
     border-bottom: 1px solid var(--border-color);

@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const awayColor = teamColors[game.awayTeam] || "#555555";
 
       const gameCardHTML = `
-                <div class="${cardClass}" style="background: linear-gradient(110deg, ${homeColor}1A, ${awayColor}1A);">
+                <div class="${cardClass}" style="background: linear-gradient(110deg, ${homeColor}70, ${awayColor}70);">
                     <div class="game-header">
                         ${headerInfo}
                     </div>
