@@ -1,4 +1,4 @@
-import { League, Game } from "./types";
+import { League, Game } from "./types.js";
 
 export async function fetchGamesData(league: League): Promise<Game[]> {
   const today = new Date();

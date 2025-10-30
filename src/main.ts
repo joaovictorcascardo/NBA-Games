@@ -1,5 +1,5 @@
-import { League } from "./types";
-import { fetchGamesData, getGameOfTheNight } from "./api";
+import { League } from "./types.js";
+import { fetchGamesData, getGameOfTheNight } from "./api.js";
 import {
   nbaButton,
   wnbaButton,
@@ -8,10 +8,10 @@ import {
   showNoGames,
   showError,
   updateActiveButton,
-} from "./ui";
+} from "./ui.js";
 
 let currentLeague: League = "wnba";
-let updateInterval: ReturnType<typeof setInterval>; // Tipo corrigido
+let updateInterval: ReturnType<typeof setInterval>;
 
 async function loadGames(league: League) {
   try {

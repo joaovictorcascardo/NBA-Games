@@ -1,4 +1,4 @@
-import { League, Game, TeamColors } from "./types";
+import { League, Game, TeamColors } from "./types.js";
 
 export const gamesContainer = document.getElementById(
   "games-container"
