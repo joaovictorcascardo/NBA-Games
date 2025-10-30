@@ -1,38 +1,57 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const gamesContainer = document.getElementById("games-container");
-  const lastUpdatedSpan = document.getElementById("last-updated");
-  const nbaButton = document.getElementById("btn-nba");
-  const wnbaButton = document.getElementById("btn-wnba");
-  let currentLeague;
-  let updateInterval;
+type League = "nba" | "wnba";
 
-  const teamColors = {
+interface Game {
+  id: string;
+  homeTeam: string;
+  homeLogo: string;
+  awayTeam: string;
+  awayLogo: string;
+  homeScore: number;
+  awayScore: number;
+  quarter: number;
+  timeRemaining: string;
+  statusDetail: string;
+  isLive: boolean;
+  isFinal: boolean;
+}
+
+type TeamColors = {
+  [key: string]: string;
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  const gamesContainer = document.getElementById(
+    "games-container"
+  ) as HTMLDivElement;
+  const lastUpdatedSpan = document.getElementById(
+    "last-updated"
+  ) as HTMLSpanElement;
+  const nbaButton = document.getElementById("btn-nba") as HTMLButtonElement;
+  const wnbaButton = document.getElementById("btn-wnba") as HTMLButtonElement;
+
+  let currentLeague: League;
+  let updateInterval: NodeJS.Timeout;
+
+  const teamColors: TeamColors = {
     BOS: "#007A33",
     BKN: "#000000",
     NYK: "#006BB6",
     PHI: "#ED174C",
     TOR: "#CE1141",
-    CHI: "#CE1141",
     CLE: "#860038",
     DET: "#C8102E",
-    IND: "#FDBB30",
     MIL: "#00471B",
-    ATL: "#E03A3E",
     CHA: "#1D1160",
     MIA: "#98002E",
     ORL: "#0077C0",
-    WAS: "#002B5C",
     DEN: "#0E2240",
-    MIN: "#0C2340",
     OKC: "#007AC1",
     POR: "#E03A3E",
     UTA: "#002B5C",
     GSW: "#1D428A",
     LAC: "#C8102E",
     LAL: "#552583",
-    PHX: "#1D1160",
     SAC: "#5A2D81",
-    DAL: "#00538C",
     HOU: "#CE1141",
     MEM: "#5D76A9",
     NOP: "#0C2340",
@@ -51,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
     LAS: "#000000",
   };
 
-  function selectLeague(league) {
+  function selectLeague(league: League) {
     currentLeague = league;
     nbaButton.classList.toggle("active", league === "nba");
     wnbaButton.classList.toggle("active", league === "wnba");
@@ -63,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
   nbaButton.addEventListener("click", () => selectLeague("nba"));
   wnbaButton.addEventListener("click", () => selectLeague("wnba"));
 
-  async function fetchGames(league) {
+  async function fetchGames(league: League) {
     gamesContainer.innerHTML =
       '<p class="loading-message">Carregando jogos da noite...</p>';
     const today = new Date();
@@ -82,20 +101,21 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
       const data = await response.json();
-      const formattedGames = data.events.map((event) => {
+
+      const formattedGames: Game[] = data.events.map((event: any) => {
         const game = event.competitions[0];
         const homeTeamData = game.competitors.find(
-          (team) => team.homeAway === "home"
+          (team: any) => team.homeAway === "home"
         );
         const awayTeamData = game.competitors.find(
-          (team) => team.homeAway === "away"
+          (team: any) => team.homeAway === "away"
         );
         const status = game.status.type;
 
         return {
           id: game.id,
           homeTeam: homeTeamData.team.abbreviation,
-          homeLogo: homeTeamData.team.logo, 
+          homeLogo: homeTeamData.team.logo,
           awayTeam: awayTeamData.team.abbreviation,
           awayLogo: awayTeamData.team.logo,
           homeScore: parseInt(homeTeamData.score || "0"),
@@ -110,15 +130,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       renderGames(formattedGames, league);
     } catch (error) {
-      gamesContainer.innerHTML = `<p class="error-message">Erro ao buscar jogos: ${error.message}.</p>`;
+      let errorMessage = "Erro desconhecido ao buscar jogos.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      gamesContainer.innerHTML = `<p class="error-message">${errorMessage}</p>`;
       console.error("Erro na API:", error);
     }
   }
 
-  function getGameOfTheNight(games) {
-    let bestGame = null;
+  function getGameOfTheNight(games: Game[]): string | null {
+    let bestGame: string | null = null;
     let highestScore = -1;
-    games.forEach((game) => {
+    games.forEach((game: Game) => {
       if (!game.isLive) return;
       const scoreDifference = Math.abs(game.homeScore - game.awayScore);
       const closenessScore = Math.max(0, 20 - scoreDifference);
@@ -132,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return bestGame;
   }
 
-  function renderGames(games, league) {
+  function renderGames(games: Game[], league: League) {
     if (games.length === 0) {
       gamesContainer.innerHTML = `<p class="loading-message">Nenhum jogo da ${league.toUpperCase()} agendado para hoje.</p>`;
       lastUpdatedSpan.textContent = new Date().toLocaleTimeString("pt-BR");
@@ -142,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
     gamesContainer.innerHTML = "";
     const gameOfTheNightId = getGameOfTheNight(games);
 
-    games.forEach((game) => {
+    games.forEach((game: Game) => {
       const isGameOfTheNight = game.id === gameOfTheNightId;
       const cardClass = isGameOfTheNight
         ? "game-card game-of-the-night"
@@ -153,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (game.isFinal) {
         headerInfo = `<span>${game.statusDetail.toUpperCase()}</span>`;
       } else {
-        headerInfo = `<span>Agendado</span>`;
+        headerInfo = `<span>${game.statusDetail}</span>`;
       }
 
       const homeColor = teamColors[game.homeTeam] || "#555555";
