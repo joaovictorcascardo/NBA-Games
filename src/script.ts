@@ -1,4 +1,5 @@
 import { League, Game, TeamColors } from "./types";
+import { fetchGamesData, getGameOfTheNight } from "./api";
 
 document.addEventListener("DOMContentLoaded", () => {
   const gamesContainer = document.getElementById(
@@ -55,60 +56,20 @@ document.addEventListener("DOMContentLoaded", () => {
     currentLeague = league;
     nbaButton.classList.toggle("active", league === "nba");
     wnbaButton.classList.toggle("active", league === "wnba");
-    fetchGames(league);
+    loadGames(league);
     if (updateInterval) clearInterval(updateInterval);
-    updateInterval = setInterval(() => fetchGames(currentLeague), 45000);
+    updateInterval = setInterval(() => loadGames(currentLeague), 45000);
   }
 
   nbaButton.addEventListener("click", () => selectLeague("nba"));
   wnbaButton.addEventListener("click", () => selectLeague("wnba"));
 
-  async function fetchGames(league: League) {
+  async function loadGames(league: League) {
     gamesContainer.innerHTML =
       '<p class="loading-message">Carregando jogos da noite...</p>';
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    const dateForApi = `${year}${month}${day}`;
-
-    const apiUrl = `https://site.api.espn.com/apis/site/v2/sports/basketball/${league}/scoreboard?dates=${dateForApi}`;
 
     try {
-      const response = await fetch(apiUrl);
-      if (!response.ok)
-        throw new Error(
-          `A API da ESPN (${league.toUpperCase()}) não está respondendo.`
-        );
-
-      const data = await response.json();
-
-      const formattedGames: Game[] = data.events.map((event: any) => {
-        const game = event.competitions[0];
-        const homeTeamData = game.competitors.find(
-          (team: any) => team.homeAway === "home"
-        );
-        const awayTeamData = game.competitors.find(
-          (team: any) => team.homeAway === "away"
-        );
-        const status = game.status.type;
-
-        return {
-          id: game.id,
-          homeTeam: homeTeamData.team.abbreviation,
-          homeLogo: homeTeamData.team.logo,
-          awayTeam: awayTeamData.team.abbreviation,
-          awayLogo: awayTeamData.team.logo,
-          homeScore: parseInt(homeTeamData.score || "0"),
-          awayScore: parseInt(awayTeamData.score || "0"),
-          quarter: status.period,
-          timeRemaining: status.displayClock,
-          statusDetail: status.description,
-          isLive: status.state === "in",
-          isFinal: status.state === "post",
-        };
-      });
-
+      const formattedGames = await fetchGamesData(league);
       renderGames(formattedGames, league);
     } catch (error) {
       let errorMessage = "Erro desconhecido ao buscar jogos.";
@@ -116,25 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
         errorMessage = error.message;
       }
       gamesContainer.innerHTML = `<p class="error-message">${errorMessage}</p>`;
-      console.error("Erro na API:", error);
     }
-  }
-
-  function getGameOfTheNight(games: Game[]): string | null {
-    let bestGame: string | null = null;
-    let highestScore = -1;
-    games.forEach((game: Game) => {
-      if (!game.isLive) return;
-      const scoreDifference = Math.abs(game.homeScore - game.awayScore);
-      const closenessScore = Math.max(0, 20 - scoreDifference);
-      const progressScore = game.quarter * 5;
-      const totalScore = closenessScore + progressScore;
-      if (totalScore > highestScore) {
-        highestScore = totalScore;
-        bestGame = game.id;
-      }
-    });
-    return bestGame;
   }
 
   function renderGames(games: Game[], league: League) {
@@ -162,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const homeColor = teamColors[game.homeTeam] || "#555555";
-      const awayColor = teamColors[game.awayTeam] || "#555555";
+      const awayColor = teamColors[game.awayTeam] || "#55555S";
 
       const gameCardHTML = `
                 <div class="${cardClass}" style="background: linear-gradient(110deg, ${homeColor}70, ${awayColor}70);">
@@ -175,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <span class="team-name">${game.homeTeam}</span>
                             <span class="team-score">${game.homeScore}</span>
                         </div>
-                        <span class="vs">vs</span>
+                        <span class="vs"></span>
                         <div class="team">
                             <img class="team-logo" src="${game.awayLogo}" alt="${game.awayTeam}"/>
                             <span class="team-name">${game.awayTeam}</span>
