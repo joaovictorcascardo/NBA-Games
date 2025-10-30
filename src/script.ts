@@ -1,23 +1,4 @@
-type League = "nba" | "wnba";
-
-interface Game {
-  id: string;
-  homeTeam: string;
-  homeLogo: string;
-  awayTeam: string;
-  awayLogo: string;
-  homeScore: number;
-  awayScore: number;
-  quarter: number;
-  timeRemaining: string;
-  statusDetail: string;
-  isLive: boolean;
-  isFinal: boolean;
-}
-
-type TeamColors = {
-  [key: string]: string;
-};
+import { League, Game, TeamColors } from "./types";
 
 document.addEventListener("DOMContentLoaded", () => {
   const gamesContainer = document.getElementById(
